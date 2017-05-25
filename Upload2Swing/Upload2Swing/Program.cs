@@ -49,10 +49,12 @@ namespace Upload2Swing
                 Console.WriteLine("generate test data");
                 var testImportCsvDataFile = GenerateTestImportCsvDataFile(period, geolevel, geoitem, value);
                 Console.WriteLine(testImportCsvDataFile);
+                Console.WriteLine(File.ReadAllText(testImportCsvDataFile));
 
                 Console.WriteLine("generate test metadata");
                 var testImportCsvMetaDataFile = GenerateTestImportCsvMetaDataFile();
                 Console.WriteLine(testImportCsvMetaDataFile);
+                Console.WriteLine(File.ReadAllText(testImportCsvMetaDataFile));
 
                 Console.WriteLine("Update admin/test version");
                 try
@@ -150,6 +152,7 @@ namespace Upload2Swing
 
             var value = new Random().Next(0, 10000);
             ExecuteApiTest(args[0], args[1], args[2], args[3], args[4], value);
+            Console.WriteLine(string.Format("Value {0} set for {1}, {2}, {3}", value, args[2], args[3], args[4]));
 
 #if DEBUG
             Console.WriteLine("Job finished. Press any key to exit the program");
