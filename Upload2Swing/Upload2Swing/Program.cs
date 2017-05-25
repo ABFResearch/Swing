@@ -134,16 +134,19 @@ namespace Upload2Swing
                 Console.WriteLine();
                 Console.WriteLine("1- swing domain (for example demo5.swing.eu)");
                 Console.WriteLine("2- apikey (a valid apikey for calling the service, for example 'e08652dc-f8b3-4ccb-9462-9cfc79fcf564')");
+                Console.WriteLine();
+                Console.WriteLine("Parameters 3, 4 and 5 are required to generate some dummy data for importing in Swing");
+                Console.WriteLine();
                 Console.WriteLine("3- period for dummy data (a valid period code in the target database, example '2016')");
                 Console.WriteLine("4- geolevel for dummy data (a valid geolevel code in the target database, example 'provincie')");
                 Console.WriteLine("5- geoitem for dummy data (a valid geoitem code in the target database, example '1')");
-                Console.WriteLine("6- a dummy value (example 1234)");
                 Console.WriteLine();
                 Console.WriteLine("Example UpdateJiveData.exe demo5.swing.eu e08652dc-f8b3-4ccb-9462-9cfc79fcf564 2016 provincie 1 1234");
                 return;
             }
 
-            ExecuteApiTest(args[0], args[1], args[2], args[3], args[4], decimal.Parse(args[5]));
+            var value = new Random().Next(0, 10000);
+            ExecuteApiTest(args[0], args[1], args[2], args[3], args[4], value);
             Console.WriteLine("Done");
         }
     }
