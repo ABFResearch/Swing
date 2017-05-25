@@ -144,7 +144,7 @@ namespace Upload2Swing
                 Console.WriteLine("4- geolevel for dummy data (a valid geolevel code in the target database, example 'provincie')");
                 Console.WriteLine("5- geoitem for dummy data (a valid geoitem code in the target database, example '1')");
                 Console.WriteLine();
-                Console.WriteLine("Example UpdateJiveData.exe demo5.swing.eu e08652dc-f8b3-4ccb-9462-9cfc79fcf564 2016 provincie 1 1234");
+                Console.WriteLine("Example Upload2Swing.exe demo5.swing.eu e08652dc-f8b3-4ccb-9462-9cfc79fcf564 2016 provincie 1 1234");
                 return;
             }
 
