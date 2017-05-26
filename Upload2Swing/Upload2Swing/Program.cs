@@ -12,11 +12,11 @@ namespace Upload2Swing
     class Program
     {
         // gebruikte URLS
-        const string studioUrl = @"https://{0}/admin/studio/";
-        const string testJiveUrl = @"https://{0}/admin/jive/";
-        const string testJiveServicesUrl = @"https://{0}/admin/jiveservices/";
-        const string jiveLiveUrl = @"https://{0}/jive/";
-        const string jiveServiceLiveUrl = @"https://{0}/jiveservices/";
+        const string studioUrl = @"https://{0}/admin/studio";
+        const string testJiveUrl = @"https://{0}/admin/jive";
+        const string testJiveServicesUrl = @"https://{0}/admin/jiveservices";
+        const string jiveLiveUrl = @"https://{0}/{1}jive";
+        const string jiveServiceLiveUrl = @"https://{0}/{1}jiveservices";
 
         static string GenerateTestImportCsvDataFile(string period, string geolevel, string geoitem, decimal value)
         {
@@ -42,7 +42,7 @@ namespace Upload2Swing
             return tempFileMetaDataCSV;
         }
 
-        static void ExecuteApiTest(string domain, string apiKey, string period, string geolevel, string geoitem, decimal value)
+        static void ExecuteApiTest(string domain, string apiKey, string period, string geolevel, string geoitem, decimal value, bool qsFlag)
         {
             using (var webClient = new WebClient())
             {
@@ -84,6 +84,10 @@ namespace Upload2Swing
                     Console.WriteLine(response);
                     if (response != "OK")
                         throw new Exception("Clear data error for admin/test version");
+
+                    var testUrl = string.Format("{0}?var=bulkapitest", string.Format(testJiveUrl, domain), apiKey);
+                    Console.WriteLine("Result can be tested by calling the following url:");
+                    Console.WriteLine(testUrl);
                 }
                 catch (Exception e)
                 {
@@ -91,10 +95,14 @@ namespace Upload2Swing
                 }
 
                 Console.WriteLine("update live/production version");
+                var jiveLivePrefix = string.Empty;
+                if (qsFlag)
+                    jiveLivePrefix = "jive/";
+
                 try
                 {
                     Console.WriteLine("upload data");
-                    var address = string.Format("{0}/BulkAPI.ashx?apikey={1}", string.Format(jiveServiceLiveUrl, domain), apiKey);
+                    var address = string.Format("{0}/BulkAPI.ashx?apikey={1}", string.Format(jiveServiceLiveUrl, domain, jiveLivePrefix), apiKey);
                     Console.WriteLine(address);
                     byte[] responseBytes = webClient.UploadFile(address, null, testImportCsvDataFile);
                     string response = Encoding.UTF8.GetString(responseBytes);
@@ -103,7 +111,7 @@ namespace Upload2Swing
                         throw new Exception("Import data error for live/production version");
 
                     Console.WriteLine("upload meta data");
-                    address = string.Format("{0}/BulkAPI.ashx?apikey={1}", string.Format(jiveServiceLiveUrl, domain), apiKey);
+                    address = string.Format("{0}/BulkAPI.ashx?apikey={1}", string.Format(jiveServiceLiveUrl, domain, jiveLivePrefix), apiKey);
                     Console.WriteLine(address);
                     responseBytes = webClient.UploadFile(address, null, testImportCsvMetaDataFile);
                     response = Encoding.UTF8.GetString(responseBytes);
@@ -112,12 +120,16 @@ namespace Upload2Swing
                         throw new Exception("Import meta data error for live/production version");
 
                     Console.WriteLine("clear data cache");
-                    address = string.Format("{0}/Update.ashx?apikey={1}&command=cleanupdatacache", string.Format(jiveLiveUrl, domain), apiKey);
+                    address = string.Format("{0}/Update.ashx?apikey={1}&command=cleanupdatacache", string.Format(jiveLiveUrl, domain, jiveLivePrefix), apiKey);
                     Console.WriteLine(address);
                     response = webClient.DownloadString(address);
                     Console.WriteLine(response);
                     if (response != "OK")
                         throw new Exception("Clear data error for live/production version");
+
+                    var testUrl = string.Format("{0}?var=bulkapitest", string.Format(jiveLiveUrl, domain, jiveLivePrefix), apiKey);
+                    Console.WriteLine("Result can be tested by calling the following url:");
+                    Console.WriteLine(testUrl);
                 }
                 catch (Exception e)
                 {
@@ -131,7 +143,7 @@ namespace Upload2Swing
         static void Main(string[] args)
         {
             // The following command line arguments
-            if (args.Length != 6)
+            if (args.Length < 5 || args.Length > 6)
             {
                 Console.WriteLine("Invalid number of arguments!");
                 Console.WriteLine();
@@ -146,12 +158,18 @@ namespace Upload2Swing
                 Console.WriteLine("4- geolevel for dummy data (a valid geolevel code in the target database, example 'provincie')");
                 Console.WriteLine("5- geoitem for dummy data (a valid geoitem code in the target database, example '1')");
                 Console.WriteLine();
+                Console.WriteLine("6- boolean if swing4 quickstep is running (default = false)");
+                Console.WriteLine();
                 Console.WriteLine("Example Upload2Swing.exe demo5.swing.eu e08652dc-f8b3-4ccb-9462-9cfc79fcf564 2016 provincie 1");
                 return;
             }
 
+            bool qsFlag = false;
+            if (args.Length == 6 && args[5].ToString().ToLower() == "true")
+                qsFlag = true;
+
             var value = new Random().Next(0, 10000);
-            ExecuteApiTest(args[0], args[1], args[2], args[3], args[4], value);
+            ExecuteApiTest(args[0], args[1], args[2], args[3], args[4], value, qsFlag);
             Console.WriteLine(string.Format("Value {0} set for {1}, {2}, {3}", value, args[2], args[3], args[4]));
 
 #if DEBUG
